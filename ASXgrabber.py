@@ -14,18 +14,24 @@
 
 # Postgre table defintions:
 #
-#"table_schema","table_name","column_name","data_type","character_maximum_length"
 #
-#"asx","company","code","character",3
-#"asx","company","name","character varying",
-#"asx","company","category","character varying",
-#"asx","company","download_date","date",
-#"asx","data","category","character varying",
-#"asx","data","code","character",3
-#"asx","data","date","character",10
-#"asx","data","name","character varying",
-#"asx","data","price","numeric",
-#"asx","data","volume","numeric",
+#CREATE TABLE asx.data
+#(
+#	category character varying,
+#	code character(3),
+#	date character(10),
+#	name character varying,
+#	price numeric,
+#	volume numeric
+#);
+#
+#CREATE TABLE asx.company
+#(
+#	code            character (3),
+#	name            CHARACTER VARYING,
+#	category        CHARACTER VARYING,
+#	download_date   date
+#);
 
 import urllib2
 import psycopg2
