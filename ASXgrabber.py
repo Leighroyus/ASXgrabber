@@ -6,37 +6,38 @@
 ##########################################################################################
 # Description: Pulls down ASX stock market data and loads into a Postgre DB.
 # Author: Leigh Sullivan
-# Version: 0.1 2016-11-16
+# Version: 0.2 2017-02-12
 # *** TO DO: implement roll back failed transaction functionality
 # *** TO DO: implement handling of duplicate imports
 # *** TO DO: implement execution automation
+#
+# v0.2: Added check to ensure Postgre database is running.
+#
 ##########################################################################################
 
 # Postgre table defintions:
 #
+#"table_schema","table_name","column_name","data_type","character_maximum_length"
 #
-#CREATE TABLE asx.data
-#(
-#	category character varying,
-#	code character(3),
-#	date character(10),
-#	name character varying,
-#	price numeric,
-#	volume numeric
-#);
-#
-#CREATE TABLE asx.company
-#(
-#	code            character (3),
-#	name            CHARACTER VARYING,
-#	category        CHARACTER VARYING,
-#	download_date   date
-#);
+#"asx","company","code","character",3
+#"asx","company","name","character varying",
+#"asx","company","category","character varying",
+#"asx","company","download_date","date",
+#"asx","data","category","character varying",
+#"asx","data","code","character",3
+#"asx","data","date","character",10
+#"asx","data","name","character varying",
+#"asx","data","price","numeric",
+#"asx","data","volume","numeric",
 
 import urllib2
 import psycopg2
 import sys
 import datetime
+import psutil
+import os
+import subprocess
+import time
 
 #Function to print text bar, just to avoid ugly print calls.
 def fnc_print_text_bar():
@@ -60,10 +61,38 @@ def is_number(s):
         return False
     return True
 			
-#Start of main program		
+#Start of main program
 fnc_print_text_bar()
 print("")
 print("Program started...")
+print("")
+print("Checking if Postgre database is running...")
+
+#First check that Postgre database is running, if not launch it.
+
+#Flag variable to store if Postgre is already running
+bol_postgre_running = "N"
+
+#Iterate through all running processes
+for p in psutil.process_iter():
+    #Get process name as a string
+    process_name = str(p.name)
+    #Search string for the 'postgre' name
+    int_search_for_postgre_result = process_name.find("postgre", 1)
+    if (int_search_for_postgre_result != -1):
+        #If 'postgre' is found then set flag to 'Y'
+        bol_postgre_running = "Y"
+#If Postgre is already running do nothing, else, launch Postgre
+if (bol_postgre_running == "Y"):
+    print("\nPostgre database is running!")
+else:
+    print("\nPostgre database is NOT running..")
+    subprocess.call(["/usr/bin/open", "-n", "-a", "/Applications/Postgres.app"])
+    time.sleep(5)
+    print("\nIt is now!")
+
+print("")
+fnc_print_text_bar()
 print("")
 print("Downloading 'ASXListedCompanies.csv'...")
 print("")
